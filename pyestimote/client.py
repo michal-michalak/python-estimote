@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 
 import requests
 
-from estimote.exceptions import (
-    EstimoteAPIUnauthorized, EstimoteAPINotFound, EstimoteAPIBadRequest, EstimoteInternalServerError
+from .exceptions import (
+    EstimoteAPIBadRequest, EstimoteAPIUnauthorized, EstimoteAPIForbidden, EstimoteAPINotFound,
+    EstimoteInternalServerError
 )
 
 
@@ -26,8 +27,10 @@ class EstimoteAPI(object):
 
         if response.status_code == 400:
             raise EstimoteAPIBadRequest(response=response)
-        elif response.status_code == 403:
+        elif response.status_code == 401:
             raise EstimoteAPIUnauthorized(response=response)
+        elif response.status_code == 403:
+            raise EstimoteAPIForbidden(response=response)
         elif response.status_code == 404:
             raise EstimoteAPINotFound(response=response)
         elif response.status_code == 500:

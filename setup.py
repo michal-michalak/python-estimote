@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='python-estimote',
     version='0.1.0',
-    packages=['estimote'],
+    packages=['pyestimote'],
     url='https://github.com/michal-michalak/python-estimote',
     license='',
     author='michal-michalak',

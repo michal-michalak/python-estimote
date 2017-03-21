@@ -7,15 +7,19 @@ class EstimoteAPIException(RequestException):
     pass
 
 
+class EstimoteAPIBadRequest(EstimoteAPIException):
+    pass
+
+
 class EstimoteAPIUnauthorized(EstimoteAPIException):
     pass
 
 
-class EstimoteAPINotFound(EstimoteAPIException):
+class EstimoteAPIForbidden(EstimoteAPIException):
     pass
 
 
-class EstimoteAPIBadRequest(EstimoteAPIException):
+class EstimoteAPINotFound(EstimoteAPIException):
     pass
 
 
