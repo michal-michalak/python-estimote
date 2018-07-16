@@ -50,6 +50,13 @@ class EstimoteAPI(object):
         url = self.base_url + '/devices/'
         return self._make_request('GET', url)
 
+    def get_devices_by_identifiers(self, identifiers):
+        """ https://cloud.estimote.com/docs/#api-Devices-GetDevices """
+        assert bool(len(identifiers)), 'Pass not empty identifiers list.'
+        param = ','.join(identifiers)
+        url = 'https://' + self.host + '/v3/devices/?identifiers={}'.format(param)
+        return self._make_request('GET', url)
+
     def get_device(self, identifier):
         """ https://cloud.estimote.com/docs/#api-Devices-GetDevice """
         url = self.base_url + '/devices/{}/'.format(identifier)
@@ -68,9 +75,28 @@ class EstimoteAPI(object):
     def update_device(self, identifier, data):
         """ https://cloud.estimote.com/docs/#api-Devices-UpdateDevice """
         url = self.base_url + '/devices/{}/'.format(identifier)
-        return self._make_request('POST', url, data=data)
+        return self._make_request('POST', url, json=data)
+
+    def update_device_tags(self, identifier, tags):
+        """ https://cloud.estimote.com/docs/#api-Devices-UpdateDevice """
+        """ https://cloud.estimote.com/docs/#api-Tags """
+        data = {'shadow': {'tags': list(set(tags))}}
+        return self.update_device(identifier, data=data)
 
     def update_multiple_devices(self, data):
         """ https://cloud.estimote.com/docs/#api-Devices-UpdateDevices """
         url = self.base_url + '/devices/bulk/'
-        return self._make_request('POST', url, data=data)
+        return self._make_request('POST', url, json=data)
+
+    def update_multiple_devices_tags(self, identifiers, tags_matrix):
+        """ https://cloud.estimote.com/docs/#api-Devices-UpdateDevices """
+        """ https://cloud.estimote.com/docs/#api-Tags """
+        assert len(identifiers) == len(tags_matrix), \
+            'Collections of identifiers and tags_matrix should have same length'
+
+        zipped = zip(identifiers, tags_matrix)
+        data = [{
+            'identifier': identifier,
+            'shadow': {'tags': list(set(tags))}
+        } for identifier, tags in zipped]
+        return self.update_multiple_devices(data)
