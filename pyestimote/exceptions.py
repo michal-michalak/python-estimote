@@ -2,6 +2,11 @@ from __future__ import unicode_literals
 
 from requests import RequestException
 
+__all__ = [
+    'EstimoteAPIBadRequest', 'EstimoteAPIUnauthorized', 'EstimoteAPIPaymentRequired', 'EstimoteAPIForbidden',
+    'EstimoteAPINotFound', 'EstimoteInternalServerError'
+]
+
 
 class EstimoteAPIException(RequestException):
     pass
@@ -12,6 +17,10 @@ class EstimoteAPIBadRequest(EstimoteAPIException):
 
 
 class EstimoteAPIUnauthorized(EstimoteAPIException):
+    pass
+
+
+class EstimoteAPIPaymentRequired(EstimoteAPIException):
     pass
 
 
