@@ -4,7 +4,7 @@ from requests import RequestException
 
 __all__ = [
     'EstimoteAPIBadRequest', 'EstimoteAPIUnauthorized', 'EstimoteAPIPaymentRequired', 'EstimoteAPIForbidden',
-    'EstimoteAPINotFound', 'EstimoteInternalServerError'
+    'EstimoteAPINotFound', 'EstimoteInternalServerError', 'EstimoteServiceUnavailable'
 ]
 
 
@@ -33,4 +33,8 @@ class EstimoteAPINotFound(EstimoteAPIException):
 
 
 class EstimoteInternalServerError(EstimoteAPIException):
+    pass
+
+
+class EstimoteServiceUnavailable(EstimoteAPIException):
     pass

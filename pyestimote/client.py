@@ -35,6 +35,8 @@ class EstimoteAPI(object):
             raise EstimoteAPINotFound(response=response)
         elif response.status_code == 500:
             raise EstimoteInternalServerError(response=response)
+        elif response.status_code == 503:
+            raise EstimoteServiceUnavailable(response=response)
 
         return response
 
