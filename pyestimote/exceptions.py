@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 from requests import RequestException
 
 __all__ = [
-    'EstimoteAPIBadRequest', 'EstimoteAPIUnauthorized', 'EstimoteAPIPaymentRequired', 'EstimoteAPIForbidden',
-    'EstimoteAPINotFound', 'EstimoteInternalServerError', 'EstimoteServiceUnavailable'
+    'EstimoteAPIException', 'EstimoteAPIBadRequest', 'EstimoteAPIUnauthorized', 'EstimoteAPIPaymentRequired',
+    'EstimoteAPIForbidden', 'EstimoteAPINotFound', 'EstimoteInternalServerError', 'EstimoteServiceUnavailable'
 ]
 
 
