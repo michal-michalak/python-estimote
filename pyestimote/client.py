@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import math
 import urllib
 import requests
 
@@ -17,6 +18,7 @@ class EstimoteAPI(object):
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         }
+        self.page_size = 100 # according to documentation page size = 100
 
     def _make_request(self, method, url, **kwargs):
         kwargs.update({'auth': (self.app_id, self.app_token)})
@@ -40,17 +42,21 @@ class EstimoteAPI(object):
 
         return response
 
+    def _get_total_pages(self, total_count):
+        return int(math.ceil(total_count / float(self.page_size)))
+
     #####################################################################################
     # DEVICES
     #####################################################################################
     def get_device(self, identifier):
         """ https://cloud.estimote.com/docs/#api-Devices-GetDevice """
-        url = self.base_v2_url + '/devices/{}/'.format(identifier)
+        url = self.base_v3_url + '/devices/{}/'.format(identifier)
         return self._make_request('GET', url)
 
-    def get_devices(self):
+    def get_devices(self,  **params):
         """ https://cloud.estimote.com/docs/#api-Devices-GetDevices """
-        url = self.base_v2_url + '/devices/'
+        params['page'] = params.get('page', 1)
+        url = self.base_v3_url + '/devices/?{}'.format(urllib.urlencode(params))
         return self._make_request('GET', url)
 
     def get_devices_by_identifiers(self, identifiers):
@@ -60,23 +66,27 @@ class EstimoteAPI(object):
         url = self.base_v3_url + '/devices/?{}'.format(params)
         return self._make_request('GET', url)
 
+    # TODO: update to v3 when official documentation will be updated
     def get_devices_to_be_updated(self):
         """ https://cloud.estimote.com/docs/#api-Devices-GetDevicesPending """
         url = self.base_v2_url + '/devices/pending/'
         return self._make_request('GET', url)
 
-    def delete_pending_settings(self, identifiers=None):
-        """ https://cloud.estimote.com/docs/#api-Devices-DeletePendingSettings """
-        url = self.base_v2_url + '/devices/delete_pending_settings/'
-        identifiers = identifiers or []
-        data = {"identifiers": identifiers}
-        return self._make_request('POST', url, data=data)
+    # TODO: not supported anymore by Estimote? for v2 and v3 returns 400 all the time
+    # def delete_pending_settings(self, identifiers=None):
+    #     """ https://cloud.estimote.com/docs/#api-Devices-DeletePendingSettings """
+    #     url = self.base_v2_url + '/devices/delete_pending_settings/'
+    #     identifiers = identifiers or []
+    #     data = {"identifiers": identifiers}
+    #     return self._make_request('POST', url, data=data)
 
     def update_device(self, identifier, data):
         """ https://cloud.estimote.com/docs/#api-Devices-UpdateDevice """
-        url = self.base_v2_url + '/devices/{}/'.format(identifier)
+        url = self.base_v3_url + '/devices/{}/'.format(identifier)
+        data['identifier'] = identifier
         return self._make_request('POST', url, json=data)
 
+    # TODO: update to v3 when official documentation will be updated
     def update_multiple_devices(self, data):
         """ https://cloud.estimote.com/docs/#api-Devices-UpdateDevices """
         url = self.base_v2_url + '/devices/bulk/'
@@ -86,6 +96,29 @@ class EstimoteAPI(object):
         """ https://cloud.estimote.com/docs/#api-DevicesV3-NewestFirmwares """
         url = self.base_v3_url + '/devices/newest_firmwares/'
         return self._make_request('GET', url)
+
+    def search(self,  **params):
+        """ Undocumented API endpoint - check web version of cloud.estimote.com """
+        params['page'] = params.get('page', 1)
+        url = self.base_v3_url + '/devices/search/?{}'.format(urllib.urlencode(params))
+        return self._make_request('GET', url)
+
+    def search_all(self, **params):
+        """ Returns all devices (e.g. list of 321 items) matching *mint* phrase. Pagination is handled internally. """
+        params.pop('page', None)
+        json_data = self.search(**params).json()
+        total_count = json_data['meta']['total_count']
+        data = json_data['data']
+
+        if total_count <= self.page_size:
+            return data
+
+        for page in range(2, self._get_total_pages(total_count) + 1):
+            params['page'] = page
+            page_data = self.search(**params).json()['data']
+            data.extend(page_data)
+
+        return data
 
     #####################################################################################
     # ATTACHMENTS
